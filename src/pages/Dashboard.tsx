@@ -1,10 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "../styles/Dashboard.module.scss";
 import { Button, Input } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import MetricsTable from "../components/MetricTable";
 
 const Dashboard: React.FC = () => {
+  const [addModalVisible, setAddModalVisible] = useState(false);
+
+  const handleAddMetric = () => {
+    setAddModalVisible(true);
+  };
+
+  const handleAddModalClose = () => {
+    setAddModalVisible(false);
+  };
+
   return (
     <div className={styles.dashboard}>
       <aside className={styles.sidebar}>
@@ -21,7 +31,7 @@ const Dashboard: React.FC = () => {
             <span>Metrics</span>
           </div>
           <div className={styles.metricActions}>
-            <Button type="primary">Add Metric</Button>
+            <Button type="primary" onClick={handleAddMetric}>Add Metric</Button>
             <Input
               prefix={<SearchOutlined />}
               placeholder="Search for a metric"
@@ -29,7 +39,10 @@ const Dashboard: React.FC = () => {
             />
           </div>
         </div>
-        <MetricsTable />
+        <MetricsTable
+          addModalVisible={addModalVisible}
+          onCloseAddModal={handleAddModalClose}
+        />
       </main>
     </div>
   );
