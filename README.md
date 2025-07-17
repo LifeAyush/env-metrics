@@ -1,69 +1,125 @@
-# React + TypeScript + Vite
+# Metrics Frontend ![React](https://img.shields.io/badge/React-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue) ![Ant Design](https://img.shields.io/badge/Ant%20Design-5.26.5-green) ![Vite](https://img.shields.io/badge/Vite-7.0.4-orange)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React-based frontend application for managing and visualizing environmental metrics data. Built with TypeScript, Ant Design, and Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Authentication & Authorization**: JWT-based authentication with secure token management
+- **Metrics Management**: CRUD operations for environmental metrics (Energy, Water, Waste)
+- **Responsive Design**: Mobile-friendly interface with Ant Design components
+- **URL State Management**: Filter and sort state persisted in URL parameters
+- **Data Visualization**: Interactive charts and trend analysis with Recharts
+- **Global Toast Notifications**: Centralized error and success messaging
+- **Protected Routes**: Authentication-based route protection
+- **Service Layer Architecture**: Modular API service structure
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Clone the repository**
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+   ```bash
+   git clone <repository-url>
+   cd metrics-frontend
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+2. **Install dependencies**
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+## Configuration
+
+### Required Environment Variables
+
+Create a `.env` file with the following variables:
+
+```env
+# API Configuration
+VITE_API_BASE_URL=http://localhost:8000
+
+# Environment
+NODE_ENV=development
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Running the Application
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Development Mode
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. **Start the development server**
+
+   ```bash
+   npm run dev
+   ```
+
+2. **Build for production**
+
+   ```bash
+   npm run build
+   ```
+
+3. **Preview production build**
+
+   ```bash
+   npm run preview
+   ```
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build
+
+## Architecture
+
+### Service Layer
+The application uses a modular service layer for API communication:
+
+- **`api.ts`**: Base axios configuration with interceptors
+- **`auth.ts`**: Authentication-related API calls
+- **`metrics.ts`**: Metrics CRUD operations
+
+### State Management
+- **Context API**: For global authentication state
+- **URL State**: Filter and sort state managed in URL parameters
+- **Local State**: Component-specific state using React hooks
+
+### Error Handling
+- **Centralized Error Handling**: All API errors handled through `apiErrorHandler`
+- **Toast Notifications**: User-friendly error and success messages
+- **Graceful Degradation**: Fallback to dummy data when API fails
+
+## UI/UX Features
+
+### Ant Design Integration
+- Consistent design system
+- Responsive components
+- Accessibility features
+- Dark/light theme support
+
+### Data Visualization
+- Recharts integration for trend graphs
+- Interactive charts in metric drawer
+- Responsive chart containers
+
+### User Experience
+- Loading states for all async operations
+- Form validation with helpful error messages
+- Keyboard navigation support
+- Mobile-responsive design
+
+## Security Features
+
+- **JWT Token Management**: Secure token storage and handling
+- **Protected Routes**: Authentication-based access control
+- **API Interceptors**: Automatic token injection and error handling
+- **Input Validation**: Client-side and server-side validation
+
