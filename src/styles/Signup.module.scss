@@ -1,0 +1,47 @@
+@use '../styles/variables' as *;
+
+.container {
+  background-color: var(--color-bg);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-family);
+}
+
+.card {
+  background: var(--color-light);
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 400px;
+}
+
+.title {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: var(--color-dark);
+}
+
+.formItem {
+  margin-bottom: 1.25rem;
+}
+
+.signupBtn {
+  width: 100%;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.linkText {
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--color-muted);
+
+  a {
+    color: var(--color-primary);
+    font-weight: 500;
+  }
+}
