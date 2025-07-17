@@ -123,3 +123,5 @@ The application uses a modular service layer for API communication:
 - **API Interceptors**: Automatic token injection and error handling
 - **Input Validation**: Client-side and server-side validation
 
+## Demo
+https://www.loom.com/share/49891914d0404d079531385e69e79d98?sid=a1435c1d-1a3c-4a11-a352-e99041031829
