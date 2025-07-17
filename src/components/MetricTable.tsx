@@ -9,12 +9,13 @@ import {
   InputNumber,
   Select,
   DatePicker,
-  message,
 } from "antd";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import type { SorterResult, FilterValue } from "antd/es/table/interface";
-import axios from "axios";
 import dayjs from "dayjs";
+import { metricsService, type Metric, type CreateMetricRequest } from "../services/metrics";
+import { useSuccessHandler, useApiErrorHandler, useToastService } from "../components/Toasts";
+import { useMetricsUrlState } from "../hooks/useUrlState";
 import styles from "../styles/MetricsTable.module.scss";
 import {
   LineChart,
@@ -25,14 +26,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-interface Metric {
-  id: string;
-  name: string;
-  value: number;
-  unit: string;
-  category: string;
-  date: string;
-}
+
 
 const dummyMetrics = Array.from({ length: 50 }, (_, i) => ({
   id: `metric-${i + 1}`,
@@ -57,69 +51,99 @@ const MetricsTable: React.FC<MetricsTableProps> = ({
   const [total, setTotal] = useState(0);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMetric, setEditingMetric] = useState<Metric | null>(null);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [metricToDelete, setMetricToDelete] = useState<Metric | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [form] = Form.useForm();
+  const toastService = useToastService();
+  const successHandler = useSuccessHandler();
+  const apiErrorHandler = useApiErrorHandler();
+  const isFetchingRef = React.useRef(false);
 
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    current: 1,
-    pageSize: 10,
-  });
+  // URL state management
+  const [urlState, setUrlState] = useMetricsUrlState();
 
-  const [sorter, setSorter] = useState<{
-    field?: string;
-    order?: "ascend" | "descend";
-  }>({});
-
-  const [filters, setFilters] = useState<{ category?: string[] }>({});
-
-  const fetchMetrics = async () => {
+  const fetchMetrics = async (params = urlState) => {
+    // Prevent multiple simultaneous requests
+    if (isFetchingRef.current) {
+      return;
+    }
+    
+    isFetchingRef.current = true;
     setLoading(true);
+    const startTime = Date.now();
+    const minLoadingTime = 300; // Minimum 300ms loading time
+    
     try {
-      // const token = localStorage.getItem("token");
-      // const response = await axios.get('/api/metrics', {
-      //   headers: { Authorization: `Bearer ${token}` },
-      //   params: {
-      //     page: pagination.current,
-      //     page_size: pagination.pageSize,
-      //     sort_by: sorter.field,
-      //     sort_order: sorter.order === 'ascend' ? 'asc' : 'desc',
-      //     filter_category: filters.category?.join(','),
-      //   },
-      // });
-      // setData(response.data.metrics);
-      // setTotal(response.data.total);
-
-      setData(dummyMetrics);
-      setTotal(dummyMetrics.length);
+      const response = await metricsService.getMetrics({
+        page: params.page,
+        limit: params.limit,
+        sort_by: params.sort_by,
+        order: params.order,
+        category: params.category,
+        search: params.search,
+      });
+      
+      // Calculate remaining time for minimum loading duration
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+      
+      // Wait for minimum loading time before updating data
+      setTimeout(() => {
+        setData(response.data);
+        setTotal(response.total);
+        setLoading(false);
+        isFetchingRef.current = false;
+        // Only show success toast for subsequent fetches (not initial load)
+        if (!isInitialLoad && response.data.length > 0) {
+          toastService.success(`Successfully loaded ${response.data.length} metrics`);
+        }
+        setIsInitialLoad(false);
+      }, remainingTime);
+      
     } catch (error) {
-      console.error("Failed to fetch metrics:", error);
-    } finally {
-      setLoading(false);
+      apiErrorHandler.handle(error, 'Failed to fetch metrics');
+      
+      // Show error message and keep existing data or show empty state
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+      
+      setTimeout(() => {
+        // Don't fall back to dummy data, show empty state instead
+        setData([]);
+        setTotal(0);
+        setLoading(false);
+        isFetchingRef.current = false;
+      }, remainingTime);
     }
   };
 
   useEffect(() => {
-    fetchMetrics();
-  }, [pagination.current, pagination.pageSize, sorter, filters]);
+    fetchMetrics(urlState);
+  }, [urlState.page, urlState.limit, urlState.sort_by, urlState.order, urlState.category, urlState.search]);
 
   const handleTableChange = (
     newPagination: TablePaginationConfig,
     newFilters: Record<string, FilterValue | null>,
     newSorter: SorterResult<Metric> | SorterResult<Metric>[]
   ) => {
-    setPagination(newPagination);
-    setFilters({
-      category: newFilters.category as string[] | undefined,
+    setUrlState(prev => {
+      // Always keep API limit at 50, don't allow changes
+      const newLimit = 50;
+      
+      return {
+        ...prev,
+        page: newPagination.current || 1,
+        limit: newLimit,
+        category: newFilters.category ? (Array.isArray(newFilters.category) ? newFilters.category[0] : newFilters.category) as string : undefined,
+        sort_by: !Array.isArray(newSorter) ? newSorter.field as string : undefined,
+        order: !Array.isArray(newSorter) && newSorter.order ? 
+          (newSorter.order === 'ascend' ? 'asc' : 'desc') : undefined,
+      };
     });
-
-    if (!Array.isArray(newSorter)) {
-      setSorter({
-        field: newSorter.field as string,
-        order: newSorter.order ?? undefined,
-      });
-    }
   };
 
   const openEditModal = (metric: Metric) => {
@@ -128,56 +152,71 @@ const MetricsTable: React.FC<MetricsTableProps> = ({
       ...metric,
       date: dayjs(metric.date),
     });
-    setIsModalOpen(true);
+    setEditModalVisible(true);
   };
 
   const handleAddMetricSubmit = async () => {
     try {
       const values = await form.validateFields();
-      const newMetric = {
-        ...values,
-        date: values.date.toISOString(), // convert Moment to ISO string
+      const newMetric: CreateMetricRequest = {
+        name: values.name,
+        value: values.value,
+        unit: values.unit,
+        category: values.category,
+        date: values.date.toISOString(),
       };
 
-      // API call can go here:
-      // const token = localStorage.getItem("token");
-      // await axios.post(`${import.meta.env.VITE_API_BASE_URL}/metrics`, newMetric, {
-      //   headers: { Authorization: `Bearer ${token}` },
-      // });
+      if (editingMetric) {
+        await metricsService.updateMetric({ ...newMetric, id: editingMetric.id });
+        successHandler.updated('Metric');
+      } else {
+        await metricsService.createMetric(newMetric);
+        successHandler.created('Metric');
+      }
 
-      message.success("Metric added successfully!");
       form.resetFields();
-      onCloseAddModal(); // from props
-      fetchMetrics(); // refresh table
+      onCloseAddModal();
+      setEditModalVisible(false);
+      setEditingMetric(null);
+      fetchMetrics();
     } catch (error) {
-      console.error("Failed to add metric:", error);
-      message.error("Failed to add metric.");
+      apiErrorHandler.handle(error, 'Failed to save metric');
     }
   };
 
-  const closeModal = () => {
+  const handleCloseEditModal = () => {
+    setEditModalVisible(false);
+    setEditingMetric(null);
     form.resetFields();
-    setIsModalOpen(false);
   };
+
 
   const handleDelete = async (metric: Metric) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${metric.name}"?`
-    );
-    if (!confirmed) return;
+    setMetricToDelete(metric);
+    setDeleteModalVisible(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!metricToDelete) return;
+
+    setDeleteLoading(true);
     try {
-      // const token = localStorage.getItem("token");
-      // await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/metrics/${metric.id}`, {
-      //   headers: { Authorization: `Bearer ${token}` },
-      // });
-
-      console.log("Deleted:", metric);
-      setData((prev) => prev.filter((m) => m.id !== metric.id));
-      setTotal((prev) => prev - 1);
+      await metricsService.deleteMetric(metricToDelete.id);
+      successHandler.deleted('Metric');
+      fetchMetrics();
+      setDeleteModalVisible(false);
+      setMetricToDelete(null);
     } catch (error) {
-      console.error("Failed to delete metric:", error);
+      apiErrorHandler.handle(error, 'Failed to delete metric');
+    } finally {
+      setDeleteLoading(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModalVisible(false);
+    setMetricToDelete(null);
+    setDeleteLoading(false);
   };
 
   const handleRowClick = (record: Metric) => {
@@ -195,10 +234,10 @@ const MetricsTable: React.FC<MetricsTableProps> = ({
       title: "Name",
       dataIndex: "name",
       key: "name",
-      sorter: true,
     },
     {
       title: "Value",
+      dataIndex: "value",
       key: "value",
       sorter: true,
       render: (_, record) => `${record.value} ${record.unit}`,
@@ -242,45 +281,16 @@ const MetricsTable: React.FC<MetricsTableProps> = ({
   return (
     <>
       <Modal
-        open={addModalVisible}
-        onCancel={onCloseAddModal}
+        open={addModalVisible || editModalVisible}
+        onCancel={editingMetric ? handleCloseEditModal : onCloseAddModal}
         onOk={handleAddMetricSubmit}
-        title="Add Metric"
-        okText="Add"
+        title={editingMetric ? "Edit Metric" : "Add Metric"}
+        okText={editingMetric ? "Update" : "Add"}
       >
         <Form
           form={form}
           layout="vertical"
-          onFinish={async (values) => {
-            try {
-              const payload = {
-                ...values,
-                date: values.date.toISOString(),
-              };
-
-              if (editingMetric) {
-                await axios.put(
-                  `${import.meta.env.VITE_API_BASE_URL}/metrics/${
-                    editingMetric.id
-                  }`,
-                  payload
-                );
-                message.success("Metric updated successfully");
-              } else {
-                await axios.post(
-                  `${import.meta.env.VITE_API_BASE_URL}/metrics`,
-                  payload
-                );
-                message.success("Metric added successfully");
-              }
-
-              fetchMetrics();
-              closeModal();
-            } catch (err) {
-              message.error("Something went wrong");
-              console.error(err);
-            }
-          }}
+          onFinish={handleAddMetricSubmit}
         >
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
             <Input />
@@ -310,16 +320,39 @@ const MetricsTable: React.FC<MetricsTableProps> = ({
         </Form>
       </Modal>
 
+      {/* Delete Confirmation Modal */}
+      <Modal
+        open={deleteModalVisible}
+        onCancel={cancelDelete}
+        onOk={confirmDelete}
+        title="Confirm Delete"
+        okText="Delete"
+        okType="danger"
+        cancelText="Cancel"
+        confirmLoading={deleteLoading}
+      >
+        <p>
+          Are you sure you want to delete "{metricToDelete?.name}"? This action cannot be undone.
+        </p>
+      </Modal>
+
       <div className={styles.tableWrapper}>
         <Table
           columns={columns}
           dataSource={data}
           rowKey="id"
-          loading={loading}
+          loading={{
+            spinning: loading,
+            tip: 'Loading metrics...',
+            indicator: <div style={{ fontSize: '16px' }}>⏳</div>
+          }}
           pagination={{
-            ...pagination,
+            current: urlState.page,
+            pageSize: 10,
             total,
             showTotal: (total) => `Total ${total} items`,
+            showSizeChanger: false,
+            showQuickJumper: false,
           }}
           onChange={handleTableChange}
           onRow={(record) => ({

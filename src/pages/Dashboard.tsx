@@ -3,9 +3,11 @@ import styles from "../styles/Dashboard.module.scss";
 import { Button, Input } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import MetricsTable from "../components/MetricTable";
+import { useMetricsUrlState } from "../hooks/useUrlState";
 
 const Dashboard: React.FC = () => {
   const [addModalVisible, setAddModalVisible] = useState(false);
+  const [urlState, setUrlState] = useMetricsUrlState();
 
   const handleAddMetric = () => {
     setAddModalVisible(true);
@@ -13,6 +15,14 @@ const Dashboard: React.FC = () => {
 
   const handleAddModalClose = () => {
     setAddModalVisible(false);
+  };
+
+  const handleSearch = (value: string) => {
+    setUrlState(prev => ({
+      ...prev,
+      search: value || undefined,
+      page: 1, // Reset to first page when searching
+    }));
   };
 
   return (
@@ -36,6 +46,9 @@ const Dashboard: React.FC = () => {
               prefix={<SearchOutlined />}
               placeholder="Search for a metric"
               className={styles.search}
+              defaultValue={urlState.search}
+              onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
+              allowClear
             />
           </div>
         </div>
