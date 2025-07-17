@@ -1,20 +1,26 @@
-import { Form, Input, Button, message } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
+import { authService, type SignupRequest } from '../services/auth';
+import { useToastService, useApiErrorHandler } from '../components/Toasts';
 import styles from '../styles/Signup.module.scss';
-import axios from 'axios'
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const toastService = useToastService();
+  const apiErrorHandler = useApiErrorHandler();
 
-  const onFinish = async (values: { email: string; password: string }) => {
+  const onFinish = async (values: SignupRequest) => {
+    setLoading(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/signup`, values);
-      message.success('Signup successful! Redirecting to login...');
+      await authService.signup(values);
+      toastService.success('Signup successful! Redirecting to login...');
       navigate('/login');
-    } catch (error: any) {
-      message.error(
-        error.response?.data?.error || 'Signup failed. Please try again.'
-      );
+    } catch (error: unknown) {
+      apiErrorHandler.handle(error, 'Signup failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,6 +56,7 @@ const Signup: React.FC = () => {
               type="primary"
               htmlType="submit"
               className={styles.signupBtn}
+              loading={loading}
             >
               Sign Up
             </Button>
