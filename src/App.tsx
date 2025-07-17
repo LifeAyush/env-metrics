@@ -21,6 +21,7 @@ const App = () => {
 
         {/* Optional fallback route */}
         <Route path="*" element={<Login />} />
+        <Route path="/test" element={<Dashboard />} />
       </Routes>
     </Router>
   );

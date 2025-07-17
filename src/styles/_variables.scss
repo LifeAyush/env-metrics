@@ -1,10 +1,8 @@
-:root {
-  --color-bg: #f9fafa;
-  --color-primary: #20a569;
-  --color-dark: #333;
-  --color-light: #fff;
-  --color-border: #e0e0e0;
-  --color-muted: #999;
+$color-bg: #f9fafa !default;
+$color-primary: #20a569 !default;
+$color-dark: #333 !default;
+$color-light: #fff !default;
+$color-border: #e0e0e0 !default;
+$color-muted: #999 !default;
 
-  --font-family: 'Inter', sans-serif;
-}
+$font-family: "Inter", sans-serif !default;

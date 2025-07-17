@@ -1,16 +1,16 @@
 @use '../styles/variables' as *;
 
 .container {
-  background-color: var(--color-bg);
+  background-color: $color-bg;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: var(--font-family);
+  font-family: $font-family;
 }
 
 .card {
-  background: var(--color-light);
+  background: $color-light;
   padding: 3rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -22,7 +22,7 @@
   font-size: 1.75rem;
   margin-bottom: 1.5rem;
   text-align: center;
-  color: var(--color-dark);
+  color: $color-dark;
 }
 
 .formItem {
@@ -31,17 +31,17 @@
 
 .loginBtn {
   width: 100%;
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  background-color: $color-primary;
+  border-color: $color-primary;
 }
 
 .linkText {
   text-align: center;
   margin-top: 1rem;
-  color: var(--color-muted);
+  color: $color-muted;
 
   a {
-    color: var(--color-primary);
+    color: $color-primary;
     font-weight: 500;
   }
 }

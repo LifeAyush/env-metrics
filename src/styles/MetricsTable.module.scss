@@ -1,0 +1,9 @@
+@use '../styles/variables' as *;
+
+.tableWrapper {
+  padding: 16px;
+  background-color: $color-light;
+  border: 1px solid $color-border;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
