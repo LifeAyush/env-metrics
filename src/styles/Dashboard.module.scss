@@ -94,9 +94,15 @@
         border-radius: 4px;
       }
     }
+     
+    .metricActions{
+      display: flex;
+      gap : 12px
+    }
 
     .search {
-      max-width: 300px;
+      min-width: 250px;
+      max-width: 350px;
     }
   }
 

@@ -1,4 +1,4 @@
-@use '../styles/variables' as *;
+@use "../styles/variables" as *;
 
 .tableWrapper {
   padding: 16px;
@@ -6,4 +6,43 @@
   border: 1px solid $color-border;
   border-radius: 12px;
   margin-bottom: 24px;
+}
+
+.drawerContent {
+  padding: 16px;
+
+  p {
+    margin: 4px 0 12px;
+    color: $color-dark;
+    font-size: 14px;
+  }
+
+  .metricLabel {
+    font-weight: 600;
+    color: $color-primary;
+    margin-top: 12px;
+    display: block;
+  }
+
+  .chartWrapper {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: $color-light;
+    border: 1px solid $color-border;
+    border-radius: 8px;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .ant-typography {
+    cursor: pointer;
+  }
+}
+
+.divider {
+  color: #999;
 }

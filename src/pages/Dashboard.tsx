@@ -1,10 +1,8 @@
-import React from 'react';
-import styles from '../styles/Dashboard.module.scss';
-import { Button, Tabs, Input } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import MetricsTable from '../components/MetricTable';
-
-const { TabPane } = Tabs;
+import React from "react";
+import styles from "../styles/Dashboard.module.scss";
+import { Button, Input } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import MetricsTable from "../components/MetricTable";
 
 const Dashboard: React.FC = () => {
   return (
@@ -18,38 +16,20 @@ const Dashboard: React.FC = () => {
       </aside>
 
       <main className={styles.main}>
-
-        <div className={styles.tabsContainer}>
-          <Tabs defaultActiveKey="1">
-            <TabPane tab="Environment" key="1" />
-            <TabPane tab="Social" key="2" />
-          </Tabs>
-        </div>
-
         <div className={styles.metricHeader}>
           <div className={styles.metricTitle}>
             <span>Metrics</span>
-            <span className={styles.metricStatus}>COMPLETED</span>
           </div>
-          <Input
-            prefix={<SearchOutlined />}
-            placeholder="Search for a metric"
-            className={styles.search}
-          />
+          <div className={styles.metricActions}>
+            <Button type="primary">Add Metric</Button>
+            <Input
+              prefix={<SearchOutlined />}
+              placeholder="Search for a metric"
+              className={styles.search}
+            />
+          </div>
         </div>
-
-        <Tabs defaultActiveKey="trend" className={styles.metricTabs}>
-          <TabPane tab="Data" key="data">
-            <MetricsTable />
-          </TabPane>
-          <TabPane tab="Trend" key="trend">
-            <div className={styles.chartPlaceholder}>[Trend Graph Placeholder]</div>
-          </TabPane>
-        </Tabs>
-
-        <div className={styles.footerActions}>
-          <Button type="primary">Add Metric</Button>
-        </div>
+        <MetricsTable />
       </main>
     </div>
   );
