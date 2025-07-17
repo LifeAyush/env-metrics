@@ -30,22 +30,10 @@ const Login: React.FC = () => {
     }
   };
 
-  const testToast = () => {
-    toastService.success("Test success toast!");
-    toastService.error("Test error toast!");
-    toastService.warning("Test warning toast!");
-    toastService.info("Test info toast!");
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.card}>
         <h2 className={styles.title}>Login</h2>
-        
-        {/* Test button for toasts */}
-        <Button onClick={testToast} style={{ marginBottom: 16 }}>
-          Test Toasts
-        </Button>
         
         <Form
           form={form}

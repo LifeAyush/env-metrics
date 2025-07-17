@@ -17,6 +17,7 @@ import { metricsService, type Metric, type CreateMetricRequest } from "../servic
 import { useSuccessHandler, useApiErrorHandler, useToastService } from "../components/Toasts";
 import { useMetricsUrlState } from "../hooks/useUrlState";
 import styles from "../styles/MetricsTable.module.scss";
+import { PAGINATION_CONFIG, CHART_CONFIG } from "../constants/config";
 import {
   LineChart,
   Line,
@@ -25,17 +26,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-
-
-const dummyMetrics = Array.from({ length: 50 }, (_, i) => ({
-  id: `metric-${i + 1}`,
-  name: `Metric ${i + 1}`,
-  value: Math.floor(Math.random() * 1000),
-  unit: "kg",
-  category: ["Energy", "Water", "Waste"][i % 3],
-  date: new Date(Date.now() - i * 86400000).toISOString(),
-}));
 
 interface MetricsTableProps {
   addModalVisible: boolean;
@@ -131,8 +121,8 @@ const MetricsTable: React.FC<MetricsTableProps> = ({
     newSorter: SorterResult<Metric> | SorterResult<Metric>[]
   ) => {
     setUrlState(prev => {
-      // Always keep API limit at 50, don't allow changes
-      const newLimit = 50;
+      // Always keep API limit at configured value, don't allow changes
+      const newLimit = PAGINATION_CONFIG.API_FETCH_LIMIT;
       
       return {
         ...prev,
@@ -348,7 +338,7 @@ const MetricsTable: React.FC<MetricsTableProps> = ({
           }}
           pagination={{
             current: urlState.page,
-            pageSize: 10,
+            pageSize: PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
             total,
             showTotal: (total) => `Total ${total} items`,
             showSizeChanger: false,
@@ -400,13 +390,13 @@ const MetricsTable: React.FC<MetricsTableProps> = ({
                 Trend (dummy):
               </Typography.Text>
               <div className={styles.chartWrapper}>
-                <ResponsiveContainer width="100%" height={200}>
+                <ResponsiveContainer width="100%" height={CHART_CONFIG.CHART_HEIGHT}>
                   <LineChart
-                    data={[...Array(10)].map((_, i) => ({
+                    data={[...Array(CHART_CONFIG.TREND_DATA_POINTS)].map((_, i) => ({
                       date: dayjs().subtract(i, "day").format("DD MMM"),
                       value:
                         selectedMetric.value +
-                        Math.floor(Math.random() * 10 - 5),
+                        Math.floor(Math.random() * CHART_CONFIG.RANDOM_VARIANCE * 2 - CHART_CONFIG.RANDOM_VARIANCE),
                     }))}
                   >
                     <XAxis dataKey="date" />

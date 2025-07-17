@@ -1,5 +1,6 @@
 import { api } from './api';
 import type { AxiosError } from 'axios';
+import { JWT_CONFIG } from '../constants/config';
 
 // Auth Types
 export interface LoginRequest {
@@ -30,35 +31,21 @@ export type AuthError = Error | AxiosError;
 export const authService = {
   // Login user
   login: async (credentials: LoginRequest): Promise<AuthResponse> => {
-    try {
-      const response = await api.post<AuthResponse, LoginRequest>('/auth/login', credentials);
-      return response.data;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Invalid credentials');
-    }
+    const response = await api.post<AuthResponse, LoginRequest>('/auth/login', credentials);
+    return response.data;
   },
 
   // Signup user
   signup: async (userData: SignupRequest): Promise<AuthResponse> => {
-    try {
-      const response = await api.post<AuthResponse, SignupRequest>('/auth/signup', userData);
-      return response.data;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Signup failed. Please try again.');
-    }
+    const response = await api.post<AuthResponse, SignupRequest>('/auth/signup', userData);
+    return response.data;
   },
 
   // Logout user
   logout: async (): Promise<void> => {
     try {
       await api.post('/auth/logout');
-    } catch (error) {
+    } catch {
       // Logout failed, but still clear local storage
     } finally {
       // Always clear local storage
@@ -68,22 +55,14 @@ export const authService = {
 
   // Refresh token
   refreshToken: async (): Promise<AuthResponse> => {
-    try {
-      const response = await api.post<AuthResponse>('/auth/refresh');
-      return response.data;
-    } catch (error) {
-      throw new Error('Session expired. Please login again.');
-    }
+    const response = await api.post<AuthResponse>('/auth/refresh');
+    return response.data;
   },
 
   // Get current user profile
   getProfile: async (): Promise<Record<string, unknown>> => {
-    try {
-      const response = await api.get<Record<string, unknown>>('/auth/profile');
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to get user profile');
-    }
+    const response = await api.get<Record<string, unknown>>('/auth/profile');
+    return response.data;
   },
 };
 
@@ -117,7 +96,7 @@ export const tokenUtils = {
     try {
       // Basic JWT expiration check (if token is JWT)
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.exp * 1000 < Date.now();
+      return payload.exp * JWT_CONFIG.MILLISECONDS_MULTIPLIER < Date.now();
     } catch {
       // If not a valid JWT, assume it's expired
       return true;

@@ -2,6 +2,7 @@ import { api } from './api';
 import type { PaginatedResponse } from './api';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import { PAGINATION_CONFIG } from '../constants/config';
 
 // Metric Types
 export interface Metric {
@@ -44,73 +45,52 @@ export type MetricsResponse = PaginatedResponse<Metric>;
 export const metricsService = {
   // Get all metrics with filters
   getMetrics: async (filters: MetricsFilters = {}): Promise<MetricsResponse> => {
-    try {
-      // Always fetch all results from API (ignore page parameter for now)
-      const apiFilters = { ...filters };
-      delete apiFilters.page; // Remove page parameter to get all results
-      
-      const response = await api.get<Metric[], MetricsFilters>('/metrics', apiFilters);
-      
-      // The API returns an array directly, so we need to wrap it in the expected structure
-      const metricsArray = response.data;
-      
-      // Client-side pagination
-      const total = metricsArray.length;
-      const page = filters.page || 1;
-      const displayLimit = 10; // Table shows 10 per page
-      const startIndex = (page - 1) * displayLimit;
-      const endIndex = startIndex + displayLimit;
-      const paginatedData = metricsArray.slice(startIndex, endIndex);
-      
-      return {
-        data: paginatedData,
-        total: total,
-        page: page,
-        page_size: displayLimit,
-        total_pages: Math.ceil(total / displayLimit)
-      };
-    } catch (error) {
-      throw new Error('Failed to fetch metrics');
-    }
+    // Always fetch all results from API (ignore page parameter for now)
+    const apiFilters = { ...filters };
+    delete apiFilters.page; // Remove page parameter to get all results
+    
+    const response = await api.get<Metric[], MetricsFilters>('/metrics', apiFilters);
+    
+    // The API returns an array directly, so we need to wrap it in the expected structure
+    const metricsArray = response.data;
+    
+    // Client-side pagination
+    const total = metricsArray.length;
+    const page = filters.page || 1;
+    const startIndex = (page - 1) * PAGINATION_CONFIG.DEFAULT_PAGE_SIZE;
+    const endIndex = startIndex + PAGINATION_CONFIG.DEFAULT_PAGE_SIZE;
+    const paginatedData = metricsArray.slice(startIndex, endIndex);
+    
+    return {
+      data: paginatedData,
+      total: total,
+      page: page,
+      page_size: PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
+      total_pages: Math.ceil(total / PAGINATION_CONFIG.DEFAULT_PAGE_SIZE)
+    };
   },
 
   // Get single metric by ID
   getMetric: async (id: string): Promise<Metric> => {
-    try {
-      const response = await api.get<Metric>(`/metrics/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to fetch metric');
-    }
+    const response = await api.get<Metric>(`/metrics/${id}`);
+    return response.data;
   },
 
   // Create new metric
   createMetric: async (metric: CreateMetricRequest): Promise<Metric> => {
-    try {
-      const response = await api.post<Metric, CreateMetricRequest>('/metrics', metric);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to create metric');
-    }
+    const response = await api.post<Metric, CreateMetricRequest>('/metrics', metric);
+    return response.data;
   },
 
   // Update existing metric
   updateMetric: async (metric: UpdateMetricRequest): Promise<Metric> => {
-    try {
-      const response = await api.put<Metric, UpdateMetricRequest>(`/metrics/${metric.id}`, metric);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to update metric');
-    }
+    const response = await api.put<Metric, UpdateMetricRequest>(`/metrics/${metric.id}`, metric);
+    return response.data;
   },
 
   // Delete metric
   deleteMetric: async (id: string): Promise<void> => {
-    try {
-      await api.delete(`/metrics/${id}`);
-    } catch (error) {
-      throw new Error('Failed to delete metric');
-    }
+    await api.delete(`/metrics/${id}`);
   },
 
   // Get metric categories
@@ -118,7 +98,7 @@ export const metricsService = {
     try {
       const response = await api.get<string[]>('/metrics/categories');
       return response.data;
-    } catch (error) {
+    } catch {
       // Return default categories if API fails
       return ['Energy', 'Water', 'Waste'];
     }

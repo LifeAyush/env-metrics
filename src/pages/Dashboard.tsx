@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className={styles.dashboard}>
       <aside className={styles.sidebar}>
-        <div className={styles.logo}>Dashbord</div>
+        <div className={styles.logo}>Dashboard</div>
         <div className={styles.menu}>
           <div className={`${styles.menuItem} ${styles.active}`}>Metrics</div>
           <div className={styles.menuItem}>Analytics</div>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import queryString from 'query-string';
+import { PAGINATION_CONFIG } from '../constants/config';
 
 // Generic URL state hook
 export function useUrlState<T extends Record<string, unknown>>(
@@ -101,7 +102,7 @@ export interface MetricsUrlState {
 export function useMetricsUrlState() {
   const initialState: MetricsUrlState = {
     page: 1,
-    limit: 50, // API will fetch 50 results
+    limit: PAGINATION_CONFIG.API_FETCH_LIMIT, // API will fetch 50 results
   };
 
   const serialize = (state: MetricsUrlState): Record<string, unknown> => ({
@@ -115,7 +116,7 @@ export function useMetricsUrlState() {
 
   const deserialize = (params: Record<string, unknown>): MetricsUrlState => ({
     page: Number(params.page) || 1,
-    limit: Number(params.limit) || 50, // API will fetch 50 results
+    limit: Number(params.limit) || PAGINATION_CONFIG.API_FETCH_LIMIT, // API will fetch 50 results
     sort_by: params.sort_by as string | undefined,
     order: params.order === 'asc' || params.order === 'desc' ? params.order as 'asc' | 'desc' : undefined,
     category: params.category as string | undefined,

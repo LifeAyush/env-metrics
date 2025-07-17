@@ -1,14 +1,11 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
-
-// API Configuration
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
-const API_BASE_URL = 'http://127.0.0.1:8000';
+import { API_CONFIG } from '../constants/config';
 
 // Create axios instance with default config
 const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
   },

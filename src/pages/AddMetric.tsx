@@ -4,8 +4,9 @@ import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { metricsService, type CreateMetricRequest } from '../services/metrics';
-import { useSuccessHandler, useApiErrorHandler, useToastService } from '../components/Toasts';
+import { useSuccessHandler, useApiErrorHandler } from '../components/Toasts';
 import styles from '../styles/AddMetric.module.scss';
+import { PAGINATION_CONFIG } from '../constants/config';
 
 const { Title } = Typography;
 
@@ -13,7 +14,7 @@ const AddMetric: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const toastService = useToastService();
+
   const successHandler = useSuccessHandler();
   const apiErrorHandler = useApiErrorHandler();
 
@@ -82,8 +83,8 @@ const AddMetric: React.FC = () => {
             label="Metric Name"
             rules={[
               { required: true, message: 'Please enter metric name' },
-              { min: 2, message: 'Name must be at least 2 characters' },
-              { max: 100, message: 'Name must be less than 100 characters' },
+              { min: PAGINATION_CONFIG.MIN_NAME_LENGTH, message: `Name must be at least ${PAGINATION_CONFIG.MIN_NAME_LENGTH} characters` },
+              { max: PAGINATION_CONFIG.MAX_NAME_LENGTH, message: `Name must be less than ${PAGINATION_CONFIG.MAX_NAME_LENGTH} characters` },
             ]}
           >
             <Input placeholder="Enter metric name" />
