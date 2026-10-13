@@ -1,6 +1,8 @@
-# Metrics Frontend ![React](https://img.shields.io/badge/React-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue) ![Ant Design](https://img.shields.io/badge/Ant%20Design-5.26.5-green) ![Vite](https://img.shields.io/badge/Vite-7.0.4-orange)
+# Env Metrics ![React](https://img.shields.io/badge/React-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue) ![Ant Design](https://img.shields.io/badge/Ant%20Design-5.26.5-green) ![Vite](https://img.shields.io/badge/Vite-7.0.4-orange)
 
 A modern React-based frontend application for managing and visualizing environmental metrics data. Built with TypeScript, Ant Design, and Vite.
+
+The API lives at https://github.com/LifeAyush/env-metrics-api. The app is live at https://metrics-frontend-tau.vercel.app.
 
 ## Features
 
@@ -19,7 +21,7 @@ A modern React-based frontend application for managing and visualizing environme
 
    ```bash
    git clone <repository-url>
-   cd metrics-frontend
+   cd env-metrics
    ```
 
 2. **Install dependencies**
